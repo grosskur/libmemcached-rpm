@@ -7,14 +7,34 @@
 # Please, preserve the changelog entries
 #
 # Lot of tests are broken making test suite unusable
+
+%global p_vendor         hhvm
+%define _name            libmemcached
+
+%if 0%{?p_vendor:1}
+  %global _orig_prefix   %{_prefix}
+  %global name_prefix    %{p_vendor}-
+
+  # Use the alternate locations for things.
+  %define _lib            lib 
+  %global _real_initrddir %{_initrddir}
+  %global _sysconfdir     %{_sysconfdir}/hhvm
+  %define _prefix         /opt/hhvm
+  %define _libdir         %{_prefix}/lib
+  %define _mandir         %{_datadir}/man
+%endif
+
+# 11503 -- Don't provide un-namespaced libraries inside rpm database
+AutoReqProv: 0
+
 %global with_tests       %{?_witht_tests:1}%{!?_with_tests:0}
 %global with_sasl        1
 %global libname          libmemcached
 
-Name:      libmemcached
+Name:      %{?name_prefix}%{_name}
 Summary:   Client library and command line tools for memcached server
 Version:   1.0.18
-Release:   2%{?dist}
+Release:   2.hhvm%{?dist}
 License:   BSD
 Group:     Applications/System
 URL:       http://libmemcached.org/
