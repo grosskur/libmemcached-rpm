@@ -7,14 +7,31 @@
 # Please, preserve the changelog entries
 #
 # Lot of tests are broken making test suite unusable
+
+%global p_vendor         hhvm
+%define _name            libmemcached
+
+%if 0%{?p_vendor:1}
+  %global _orig_prefix   %{_prefix}
+  %global name_prefix    %{p_vendor}-
+
+  # Use the alternate locations for things.
+  %define _lib            lib 
+  %global _real_initrddir %{_initrddir}
+  %global _sysconfdir     %{_sysconfdir}/hhvm
+  %define _prefix         /opt/hhvm
+  %define _libdir         %{_prefix}/lib
+  %define _mandir         %{_datadir}/man
+%endif
+
 %global with_tests       %{?_witht_tests:1}%{!?_with_tests:0}
 %global with_sasl        1
 %global libname          libmemcached
 
-Name:      libmemcached
+Name:      %{?name_prefix}%{_name}
 Summary:   Client library and command line tools for memcached server
 Version:   1.0.18
-Release:   2%{?dist}
+Release:   2.hhvm%{?dist}
 License:   BSD
 Group:     Applications/System
 URL:       http://libmemcached.org/
@@ -40,6 +57,8 @@ BuildRequires: libevent-devel
 
 Provides:      bundled(bobjenkins-hash)
 Requires:      %{name}-libs%{?_isa} = %{version}-%{release}
+# Don't provide un-namespaced libraries inside rpm database
+AutoReqProv: 0
 
 Patch0: libmemcached-fix-linking-with-libpthread.patch
 
@@ -74,6 +93,8 @@ Requires:   pkgconfig
 %if %{with_sasl}
 Requires:   cyrus-sasl-devel%{?_isa}
 %endif
+# Don't provide un-namespaced libraries inside rpm database
+AutoReqProv: 0
 
 %description devel
 This package contains the header files and development libraries
@@ -84,6 +105,8 @@ you will need to install %{name}-devel.
 %package libs
 Summary:    %{libname} libraries
 Group:      System Environment/Libraries
+# Don't provide un-namespaced libraries inside rpm database
+AutoReqProv: 0
 
 %description libs
 This package contains the %{libname} libraries version %{version}.
